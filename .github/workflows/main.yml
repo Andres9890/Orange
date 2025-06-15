@@ -25,18 +25,14 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install AIR SDK Manager and Download SDK
+      - name: Download and Extract AIR SDK
         run: |
-          curl -L -o AIRSDKManager.pkg https://github.com/airsdk/airsdkmanager-releases/releases/download/v1.1.2/AIRSDKManager_1.1.2.pkg
-          sudo installer -pkg AIRSDKManager.pkg -target /
-          SDK_MANAGER_PATH=$(sudo find / -name sdkmanager 2>/dev/null)
-          if [[ -z "$SDK_MANAGER_PATH" ]]; then
-            echo "::error::sdkmanager executable not found after installation."
-            exit 1
-          fi
-          echo "Found sdkmanager at: $SDK_MANAGER_PATH"
-          "$SDK_MANAGER_PATH" install latest --os macos --output airsdk
+          echo "Downloading AIR SDK..."
+          curl -L -o airsdk.tbz2 "https://airsdk.harman.com/download/51.2.1.5"
 
+          echo "Extracting AIR SDK..."
+          mkdir -p airsdk
+          tar -xjf airsdk.tbz2 -C airsdk --strip-components=1
 
 
       - name: Build Unsigned IPA with ADT
