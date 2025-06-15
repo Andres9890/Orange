@@ -1,0 +1,67 @@
+name: SWF to APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      swf_file:
+        description: 'Path to SWF file in repo'
+        required: true
+        default: 'app.swf'
+      app_descriptor:
+        description: 'Path to AIR Application Descriptor XML'
+        required: true
+        default: 'App-app.xml'
+      output_name:
+        description: 'Base name of the APK file'
+        required: false
+        default: 'orange.apk'
+
+jobs:
+  build-apk:
+    name: Build APK from SWF
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Download and Extract AIR SDK
+        run: |
+          echo "Downloading AIR SDK..."
+          curl -L -o airsdk.zip "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
+          echo "Extracting AIR SDK..."
+          mkdir -p airsdk
+          unzip -q airsdk.zip -d airsdk
+
+      - name: Generate Dummy Signing Certificate
+        run: |
+          mkdir -p certs
+          keytool -genkey -v \
+            -keystore certs/dev_cert.p12 \
+            -alias dummycert \
+            -storetype pkcs12 \
+            -storepass 123456 \
+            -keypass 123456 \
+            -dname "CN=Dummy, OU=Dev, O=DummyOrg, C=US" \
+            -validity 365 \
+            -keyalg RSA \
+            -keysize 2048
+
+      - name: Build APK with ADT
+        run: |
+          ./airsdk/bin/adt \
+            -package \
+            -target apk-debug \
+            -storetype pkcs12 \
+            -keystore certs/dev_cert.p12 \
+            -storepass 123456 \
+            "${{ github.event.inputs.output_name }}" \
+            "${{ github.event.inputs.app_descriptor }}" \
+            "${{ github.event.inputs.swf_file }}"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.output_name }}
+          path: ${{ github.event.inputs.output_name }}
+          retention-days: 90
