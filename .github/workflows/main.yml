@@ -27,9 +27,11 @@ jobs:
 
       - name: Install AIR SDK Manager and Download SDK
         run: |
-             curl -L -o AIRSDKManager.pkg https://github.com/airsdk/airsdkmanager-releases/releases/download/v1.1.2/AIRSDKManager_1.1.2.pkg
-             sudo installer -pkg AIRSDKManager.pkg -target /
-             /usr/local/bin/sdkmanager install latest --os macos --output airsdk
+          curl -L -o AIRSDKManager.pkg https://github.com/airsdk/airsdkmanager-releases/releases/download/v1.1.2/AIRSDKManager_1.1.2.pkg
+          sudo installer -pkg AIRSDKManager.pkg -target /
+          export PATH="/usr/local/bin:$PATH"
+          sdkmanager install latest --os macos --output airsdk
+
 
       - name: Build Unsigned IPA with ADT
         run: |
