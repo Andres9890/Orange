@@ -27,12 +27,12 @@ jobs:
 
       - name: Download and Extract AIR SDK
         run: |
-          echo "Downloading AIR SDK..."
-          curl -L -o airsdk.tbz2 "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
-
-          echo "Extracting AIR SDK..."
-          mkdir -p airsdk
-          tar -xjf airsdk.tbz2 -C airsdk --strip-components=1
+         echo "Downloading AIR SDK..."
+         curl -L -o airsdk.zip "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
+ 
+         echo "Extracting AIR SDK..."
+         mkdir -p airsdk
+         unzip -q airsdk.zip -d airsdk
 
 
       - name: Build Unsigned IPA with ADT
