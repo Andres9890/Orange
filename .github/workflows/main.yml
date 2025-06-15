@@ -27,21 +27,24 @@ jobs:
 
       - name: Download and Extract AIR SDK
         run: |
-          # Step 1: Download the ZIP archive using the direct link.
+          # Step 1: Download the ZIP archive.
           echo "Downloading AIR SDK..."
           curl -L -o airsdk.zip "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
 
           # Step 2: Unzip the archive.
+          # The -q flag is removed to show detailed output of all extracted files.
           echo "Extracting AIR SDK..."
-          unzip -q airsdk.zip
-          
-          # Step 3: Rename the extracted directory to 'airsdk'.
-          echo "Standardizing SDK directory name..."
+          unzip airsdk.zip
+
+          # Step 3: DEBUG - List the contents of the current directory.
+          # This will show you the actual name of the directory created by the unzip command.
+          echo "Listing contents after unzip:"
+          ls -l
+
+          # Step 4: This mv command is now expected to fail, but the ls output above will tell you how to fix it.
+          echo "Attempting to standardize SDK directory name..."
           mv AIRSDK* airsdk
-          
-          # Step 4: DEBUG - List the contents of the airsdk directory to find the correct path to 'adt'.
-          echo "Listing contents of the extracted SDK directory:"
-          ls -R airsdk
+
 
 
 
