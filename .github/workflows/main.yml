@@ -28,7 +28,7 @@ jobs:
       - name: Download and Extract AIR SDK
         run: |
           echo "Downloading AIR SDK..."
-          curl -L -o airsdk.tbz2 "https://airsdk.harman.com/download/51.2.1.5"
+          curl -L -o airsdk.tbz2 "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
 
           echo "Extracting AIR SDK..."
           mkdir -p airsdk
