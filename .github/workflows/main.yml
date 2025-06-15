@@ -1,0 +1,49 @@
+name: SWF to Unsigned IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      swf_file:
+        description: 'Path to SWF file in repo'
+        required: true
+        default: 'app.swf'
+      app_descriptor:
+        description: 'Path to AIR Application Descriptor XML'
+        required: true
+        default: 'App-app.xml'
+      output_name:
+        description: 'Name of the generated IPA'
+        required: false
+        default: 'orange.ipa'
+
+jobs:
+  build:
+    name: Build Unsigned IPA from SWF
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install AIR SDK
+        run: |
+          mkdir airsdk && cd airsdk
+          curl -L -o airsdk.zip https://airsdk.harman.com/download/33.1.1.932/air-sdk-mac.zip
+          unzip airsdk.zip
+          echo "AIR SDK installed."
+
+      - name: Build Unsigned IPA with ADT
+        run: |
+          ./airsdk/bin/adt \
+            -package \
+            -target ipa-test \
+            ${{ github.event.inputs.output_name }} \
+            ${{ github.event.inputs.app_descriptor }} \
+            ${{ github.event.inputs.swf_file }}
+
+      - name: Upload Unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.output_name }}
+          path: ${{ github.event.inputs.output_name }}
+          retention-days: 90
