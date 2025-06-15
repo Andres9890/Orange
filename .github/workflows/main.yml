@@ -1,4 +1,4 @@
-name: SWF to Unsigned IPA
+name: SWF to IPA and APK
 
 on:
   workflow_dispatch:
@@ -12,13 +12,13 @@ on:
         required: true
         default: 'App-app.xml'
       output_name:
-        description: 'Name of the generated IPA'
+        description: 'Base name of the generated files'
         required: false
-        default: 'orange.ipa'
+        default: 'orange'
 
 jobs:
   build:
-    name: Build Unsigned IPA from SWF
+    name: Build Unsigned IPA and APK from SWF
     runs-on: macos-latest
 
     steps:
@@ -27,26 +27,63 @@ jobs:
 
       - name: Download and Extract AIR SDK
         run: |
-         echo "Downloading AIR SDK..."
-         curl -L -o airsdk.zip "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
- 
-         echo "Extracting AIR SDK..."
-         mkdir -p airsdk
-         unzip -q airsdk.zip -d airsdk
+          echo "Downloading AIR SDK..."
+          curl -L -o airsdk.zip "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
+          echo "Extracting AIR SDK..."
+          mkdir -p airsdk
+          unzip -q airsdk.zip -d airsdk
 
+      - name: Generate Dummy Self-Signed Certificate
+        run: |
+          mkdir -p certs
+          keytool -genkey -v \
+            -keystore certs/dev_cert.p12 \
+            -alias dummycert \
+            -storetype pkcs12 \
+            -storepass 123456 \
+            -keypass 123456 \
+            -dname "CN=Dummy, OU=Dev, O=DummyOrg, C=US" \
+            -validity 365 \
+            -keyalg RSA \
+            -keysize 2048
 
-      - name: Build Unsigned IPA with ADT
+          echo "FAKE_MOBILEPROVISION_CONTENT" > certs/dummy.mobileprovision
+
+      - name: Build IPA
         run: |
           ./airsdk/bin/adt \
             -package \
-            -target ipa-test \
-            ${{ github.event.inputs.output_name }} \
-            ${{ github.event.inputs.app_descriptor }} \
-            ${{ github.event.inputs.swf_file }}
+            -target ipa-debug \
+            -storetype pkcs12 \
+            -keystore certs/dev_cert.p12 \
+            -storepass 123456 \
+            -provisioning-profile certs/dummy.mobileprovision \
+            "${{ github.event.inputs.output_name }}.ipa" \
+            "${{ github.event.inputs.app_descriptor }}" \
+            "${{ github.event.inputs.swf_file }}"
 
-      - name: Upload Unsigned IPA
+      - name: Build APK
+        run: |
+          ./airsdk/bin/adt \
+            -package \
+            -target apk-debug \
+            -storetype pkcs12 \
+            -keystore certs/dev_cert.p12 \
+            -storepass 123456 \
+            "${{ github.event.inputs.output_name }}.apk" \
+            "${{ github.event.inputs.app_descriptor }}" \
+            "${{ github.event.inputs.swf_file }}"
+
+      - name: Upload ipa
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.output_name }}
-          path: ${{ github.event.inputs.output_name }}
+          name: ${{ github.event.inputs.output_name }}-ipa
+          path: ${{ github.event.inputs.output_name }}.ipa
+          retention-days: 90
+
+      - name: Upload apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.output_name }}-apk
+          path: ${{ github.event.inputs.output_name }}.apk
           retention-days: 90
