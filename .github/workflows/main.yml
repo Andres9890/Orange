@@ -27,12 +27,22 @@ jobs:
 
       - name: Download and Extract AIR SDK
         run: |
+          # Step 1: Download the ZIP archive using the direct link.
           echo "Downloading AIR SDK..."
-          curl -L -o airsdk.tbz2 "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
+          curl -L -o airsdk.zip "https://airsdk.harman.com/api/versions/51.2.1.5/sdks/AIRSDK_MacOS.zip?license=accepted"
 
+          # Step 2: Unzip the archive.
           echo "Extracting AIR SDK..."
-          mkdir -p airsdk
-          tar -xjf airsdk.tbz2 -C airsdk --strip-components=1
+          unzip -q airsdk.zip
+          
+          # Step 3: Rename the extracted directory to 'airsdk'.
+          echo "Standardizing SDK directory name..."
+          mv AIRSDK* airsdk
+          
+          # Step 4: DEBUG - List the contents of the airsdk directory to find the correct path to 'adt'.
+          echo "Listing contents of the extracted SDK directory:"
+          ls -R airsdk
+
 
 
       - name: Build Unsigned IPA with ADT
