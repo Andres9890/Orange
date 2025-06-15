@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application xmlns="http://ns.adobe.com/air/application/33.1">
+  <id>com.example.orangeroulette</id>
+  <versionNumber>1.0.0</versionNumber>
+  <filename>OrangeRoulette</filename>
+  <initialWindow>
+    <content>app.swf</content>
+    <visible>true</visible>
+    <fullScreen>false</fullScreen>
+    <aspectRatio>landscape</aspectRatio>
+    <renderMode>auto</renderMode>
+  </initialWindow>
+  <supportedProfiles>mobileDevice</supportedProfiles>
+  <iPhone>
+    <InfoAdditions><![CDATA[
+      <key>UIDeviceFamily</key>
+      <array>
+        <string>1</string>
+        <string>2</string>
+      </array>
+    ]]></InfoAdditions>
+    <requestedDisplayResolution>high</requestedDisplayResolution>
+  </iPhone>
+</application>
