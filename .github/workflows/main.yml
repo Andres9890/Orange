@@ -25,12 +25,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install AIR SDK
+      - name: Install AIR SDK Manager and Download SDK
         run: |
-          mkdir airsdk && cd airsdk
-          curl -L -o airsdk.zip https://airsdk.harman.com/download/33.1.1.932/air-sdk-mac.zip
-          unzip airsdk.zip
-          echo "AIR SDK installed."
+             curl -L -o AIRSDKManager.pkg https://github.com/airsdk/airsdkmanager-releases/releases/download/v1.1.2/AIRSDKManager_1.1.2.pkg
+             sudo installer -pkg AIRSDKManager.pkg -target /
+             /usr/local/bin/sdkmanager install latest --os macos --output airsdk
 
       - name: Build Unsigned IPA with ADT
         run: |
